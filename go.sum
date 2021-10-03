@@ -2,6 +2,8 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Pivot-Studio/go-mysql v1.3.1 h1:WNQUtHkUkqp79q16d9HEjNfVzqCp4hrl3FUu3pczxzI=
 github.com/Pivot-Studio/go-mysql v1.3.1/go.mod h1:3lFZKf7l95Qo70+3XB2WpiSf9wu2s3na3geLMaIIrqQ=
+github.com/apache/rocketmq-client-go v1.2.4 h1:UQu4z1wKsszrZyMk7DJrsQqw7lgBYXiWNYD8ME9X7EI=
+github.com/apache/rocketmq-client-go v1.2.4/go.mod h1:Kap8oXIVLlHF50BGUbN9z97QUp1GaK1nOoCfsZnR2bw=
 github.com/apache/rocketmq-client-go/v2 v2.1.0 h1:3eABKfxc1WmS2lLTTbKMe1gZfZV6u1Sx9orFnOfABV0=
 github.com/apache/rocketmq-client-go/v2 v2.1.0/go.mod h1:oEZKFDvS7sz/RWU0839+dQBupazyBV7WX5cP6nrio0Q=
 github.com/cznic/golex v0.0.0-20181122101858-9c343928389c/go.mod h1:+bmmJDNmKlhWNG+gwWCkaBoTy39Fs+bzRxVBzoTQbIc=
