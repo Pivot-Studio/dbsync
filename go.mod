@@ -5,7 +5,9 @@ go 1.15
 require (
 	github.com/apache/rocketmq-client-go v1.2.4
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
+	github.com/dgraph-io/badger/v3 v3.2103.1
 	github.com/go-mysql-org/go-mysql v1.3.0
+	github.com/liushuochen/gotable v0.0.0-20210924022632-cca29cdd702b
 	github.com/sirupsen/logrus v1.4.1
 )
 
