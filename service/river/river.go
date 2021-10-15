@@ -66,7 +66,7 @@ func (r *River) Run() error {
 	r.wg.Add(1)
 	go r.syncLoop()
 	logrus.Info("sleep 5 seconds......")
-	time.Sleep(5*time.Second)
+	time.Sleep(5 * time.Second)
 
 	pos, err := r.storageDao.Get()
 	if err != nil {

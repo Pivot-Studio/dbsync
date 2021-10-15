@@ -16,12 +16,12 @@ type RockerTransfer struct {
 	p     rocketmq.Producer
 }
 
-func (r *RockerTransfer) DoBulk(rows []model.RowRequest) error {
+func (r *RockerTransfer) DoBulk(rows []*model.RowRequest) error {
 	var ms []*primitive.Message
 	for _, row := range rows {
 		rowByte, err := json.Marshal(row)
 		if err != nil {
-			logrus.Errorf("json marshal err %v\nmessage row %v", err, row)
+			logrus.Errorf("json marshal err %v\nmessage row %s", err, string(rowByte))
 			return err
 		}
 		ms = append(ms, &primitive.Message{Topic: r.topic, Body: rowByte})
@@ -31,7 +31,7 @@ func (r *RockerTransfer) DoBulk(rows []model.RowRequest) error {
 		logrus.Errorf("rocket send message err %v\nmessage rows %v", err, rows)
 		return err
 	}
-	logrus.Info("send message success,length:%d", len(rows))
+	logrus.Infof("send message success,length:%d", len(rows))
 	return nil
 }
 func (r *RockerTransfer) InitRocket() error {
@@ -45,6 +45,7 @@ func (r *RockerTransfer) InitRocket() error {
 	}
 	logrus.Info("init rocket success")
 	r.p = p
+	r.topic = "RocketTest"
 	return nil
 }
 func (r *RockerTransfer) Run() error {

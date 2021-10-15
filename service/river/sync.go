@@ -14,7 +14,7 @@ func (r *River) syncLoop() {
 	defer r.wg.Done()
 
 	lastSavedTime := time.Now()
-	reqs := make([]model.RowRequest, 0, 1024)
+	reqs := make([]*model.RowRequest, 0, 1024)
 
 	var pos mysql.Position
 
@@ -34,7 +34,7 @@ func (r *River) syncLoop() {
 					needSavePos = true
 					pos = v.Pos
 				}
-			case []model.RowRequest:
+			case []*model.RowRequest:
 				reqs = append(reqs, v...)
 				needFlush = len(reqs) >= bulkSize
 			}

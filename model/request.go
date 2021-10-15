@@ -1,12 +1,12 @@
 package model
 
-import "github.com/go-mysql-org/go-mysql/mysql"
+import (
+	"github.com/go-mysql-org/go-mysql/canal"
+	"github.com/go-mysql-org/go-mysql/mysql"
+)
 
 type RowRequest struct {
-	// Action    string
-	// Timestamp uint32
-	// Old       []interface{}
-	// Row       []interface{}
+	RowsEvent canal.RowsEvent
 }
 
 type PosRequest struct {
