@@ -7,6 +7,7 @@ import (
 
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,5 +32,27 @@ func (r *RockerTransfer) DoBulk(rows []model.RowRequest) error {
 		return err
 	}
 	logrus.Info("send message success,length:%d", len(rows))
+	return nil
+}
+func (r *RockerTransfer) InitRocket() error {
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{"127.0.0.1:9876"})),
+		producer.WithRetry(2),
+	)
+	if err != nil {
+		logrus.Errorf("init rocket err %v", err)
+		return err
+	}
+	logrus.Info("init rocket success")
+	r.p = p
+	return nil
+}
+func (r *RockerTransfer) Run() error {
+	err := r.p.Start()
+	if err != nil {
+		logrus.Errorf("start rocket err %v", err)
+		return err
+	}
+	logrus.Info("start rocket success")
 	return nil
 }

@@ -28,6 +28,7 @@ func (r *River) syncLoop() {
 			case model.PosRequest:
 				now := time.Now()
 				if v.Force || now.Sub(lastSavedTime) > 3*time.Second {
+					logrus.Info(now.Sub(lastSavedTime))
 					lastSavedTime = now
 					needFlush = true
 					needSavePos = true
@@ -43,7 +44,7 @@ func (r *River) syncLoop() {
 			return
 		}
 
-		if needFlush {
+		if needFlush && len(reqs) != 0 {
 			if err := r.transfer.DoBulk(reqs); err != nil {
 				logrus.Errorf("do mq bulk err %v, close sync", err)
 				r.cancel()

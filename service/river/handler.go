@@ -6,6 +6,7 @@ import (
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/replication"
+	"github.com/sirupsen/logrus"
 )
 
 type eventHandler struct {
@@ -38,6 +39,7 @@ func (h *eventHandler) OnXID(nextPos mysql.Position) error {
 }
 
 func (h *eventHandler) OnRow(e *canal.RowsEvent) error {
+	logrus.Info(e.Rows)
 	return h.r.ctx.Err()
 }
 
