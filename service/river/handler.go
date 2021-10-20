@@ -2,11 +2,11 @@ package river
 
 import (
 	"dbsync/model"
+	"fmt"
 
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/replication"
-	"github.com/pkg/errors"
 )
 
 type eventHandler struct {
@@ -44,7 +44,7 @@ func (h *eventHandler) OnRow(e *canal.RowsEvent) error {
 	reqs := []*model.RowRequest{&req}
 	if err != nil {
 		h.r.cancel()
-		return errors.Errorf("make %s ES request err %v, close sync", e.Action, err)
+		return fmt.Errorf("make %s ES request err %v, close sync", e.Action, err)
 	}
 
 	h.r.syncCh <- reqs
