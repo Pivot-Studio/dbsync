@@ -35,10 +35,13 @@ func main() {
 	}
 	c.Register(Holes{}, HoleTest)
 	done := make(chan struct{}, 1)
-	err = c.Run()
-	if err != nil {
-		logrus.Fatalf("start consumer err %v", err)
-	}
+	go func() {
+		err = c.Run()
+		if err != nil {
+			logrus.Fatalf("start consumer err %v", err)
+		}
+		done <- struct{}{}
+	}()
 	n := <-sc
 	logrus.Infof("receive signal %v, closing", n)
 	err = c.Stop()
