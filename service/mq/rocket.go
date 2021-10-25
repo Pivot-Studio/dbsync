@@ -8,12 +8,12 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
+	"github.com/apache/rocketmq-client-go/v2/rlog"
 	"github.com/sirupsen/logrus"
 )
 
 type RockerTransfer struct {
-	topic string
-	p     rocketmq.Producer
+	p rocketmq.Producer
 }
 
 func (r *RockerTransfer) DoBulk(rows []*model.RowRequest) error {
@@ -24,7 +24,7 @@ func (r *RockerTransfer) DoBulk(rows []*model.RowRequest) error {
 			logrus.Errorf("json marshal err %v\nmessage row %s", err, string(rowByte))
 			return err
 		}
-		ms = append(ms, &primitive.Message{Topic: r.topic, Body: rowByte})
+		ms = append(ms, &primitive.Message{Topic: row.Table, Body: rowByte})
 	}
 	_, err := r.p.SendSync(context.Background(), ms...)
 	if err != nil {
@@ -35,6 +35,7 @@ func (r *RockerTransfer) DoBulk(rows []*model.RowRequest) error {
 	return nil
 }
 func (r *RockerTransfer) InitRocket() error {
+	rlog.SetLogLevel("warn")
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{"127.0.0.1:9876"})),
 		producer.WithRetry(2),
@@ -45,7 +46,6 @@ func (r *RockerTransfer) InitRocket() error {
 	}
 	logrus.Info("init rocket success")
 	r.p = p
-	r.topic = "RocketTest"
 	return nil
 }
 func (r *RockerTransfer) Run() error {

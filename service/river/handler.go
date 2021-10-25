@@ -6,7 +6,7 @@ import (
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/replication"
-	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type eventHandler struct {
@@ -39,14 +39,11 @@ func (h *eventHandler) OnXID(nextPos mysql.Position) error {
 }
 
 func (h *eventHandler) OnRow(e *canal.RowsEvent) error {
-	var err error
-	req := model.RowRequest{RowsEvent: *e}
-	reqs := []*model.RowRequest{&req}
+	reqs, err := h.r.makeRequest(e)
 	if err != nil {
-		h.r.cancel()
-		return errors.Errorf("make %s ES request err %v, close sync", e.Action, err)
+		logrus.Errorf("make reqs err %v")
+		return err
 	}
-
 	h.r.syncCh <- reqs
 	return h.r.ctx.Err()
 }

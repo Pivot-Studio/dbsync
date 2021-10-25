@@ -28,7 +28,6 @@ func (r *River) syncLoop() {
 			case model.PosRequest:
 				now := time.Now()
 				if v.Force || now.Sub(lastSavedTime) > 3*time.Second {
-					logrus.Info(now.Sub(lastSavedTime))
 					lastSavedTime = now
 					needFlush = true
 					needSavePos = true
