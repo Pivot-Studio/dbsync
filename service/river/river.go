@@ -32,7 +32,6 @@ func NewRiver() (*River, error) {
 	r := new(River)
 	r.syncCh = make(chan interface{}, 4096)
 	r.ctx, r.cancel = context.WithCancel(context.Background())
-
 	r.transfer = new(mq.RockerTransfer)
 	err := r.transfer.InitRocket()
 	if err != nil {

@@ -1,18 +1,27 @@
 package main
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/apache/rocketmq-client-go/v2"
-	"github.com/apache/rocketmq-client-go/v2/consumer"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
-	"github.com/apache/rocketmq-client-go/v2/rlog"
+	"dbsync/client"
+
 	"github.com/sirupsen/logrus"
 )
 
+type Holes struct {
+	Id       int
+	Contents string
+}
+
+func HoleTest(msg []byte) error {
+	var holeBefore Holes
+	var holeAfter Holes
+	client.Build(&holeBefore, &holeAfter, msg)
+	logrus.Infof("before %v,after %v", holeBefore, holeAfter)
+	return nil
+}
 func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc,
@@ -20,36 +29,19 @@ func main() {
 		syscall.SIGINT,
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
-	rlog.SetLogLevel("warn")
-	c, err := rocketmq.NewPushConsumer(
-		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{"127.0.0.1:9876"})),
-		consumer.WithRetry(2),
-	)
+	c, err := client.NewClient("consemer 3")
 	if err != nil {
-		logrus.Fatalf("init consumer err %v", err)
+		logrus.Fatalf("init client err %v", err)
 	}
-	err = c.Subscribe("RocketTest", consumer.MessageSelector{}, func(ctx context.Context,
-		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
-		logrus.Infof("recive num: %v \n", len(msgs))
-		for _, msg := range msgs {
-			logrus.Infof("msg content: %s", msg.Body)
-		}
-		return consumer.ConsumeSuccess, nil
-	})
-	if err != nil {
-		logrus.Fatal("init consumer err %v", err)
-	}
+	c.Register(Holes{}, HoleTest)
 	done := make(chan struct{}, 1)
-	go func() {
-		err = c.Start()
-		if err != nil {
-			logrus.Fatalf("start consumer err %v", err)
-		}
-		done <- struct{}{}
-	}()
+	err = c.Run()
+	if err != nil {
+		logrus.Fatalf("start consumer err %v", err)
+	}
 	n := <-sc
 	logrus.Infof("receive signal %v, closing", n)
-	err = c.Shutdown()
+	err = c.Stop()
 	if err != nil {
 		logrus.Fatalf("shutdown err consumer err %v", err)
 	}
