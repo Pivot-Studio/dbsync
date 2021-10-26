@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Rican7/conjson"
+	"github.com/Rican7/conjson/transform"
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/schema"
@@ -41,17 +43,7 @@ func buildInsertMsg(dest interface{}, msg model.RowRequest) error {
 	for k, c := range msg.Column {
 		destMap[c.Name] = makeReqColumnData(&c, msg.AfterData[k])
 	}
-	b, err := json.Marshal(destMap)
-	if err != nil {
-		logrus.Errorf("map json parse err %v", err)
-		return err
-	}
-	err = json.Unmarshal(b, dest)
-	if err != nil {
-		logrus.Errorf("dest json parse err %v", err)
-		return err
-	}
-	return nil
+	return mapToDest(&destMap, dest)
 }
 func buildDeleteMsg(dest interface{}, msg model.RowRequest) error {
 	destMap := make(map[string]interface{})
@@ -61,12 +53,16 @@ func buildDeleteMsg(dest interface{}, msg model.RowRequest) error {
 	return mapToDest(&destMap, dest)
 }
 func mapToDest(m *map[string]interface{}, dest interface{}) error {
+
 	b, err := json.Marshal(m)
 	if err != nil {
 		logrus.Errorf("map json parse err %v", err)
 		return err
 	}
-	err = json.Unmarshal(b, dest)
+	json.Unmarshal(
+		b,
+		conjson.NewUnmarshaler(dest, transform.ConventionalKeys()),
+	)
 	if err != nil {
 		logrus.Errorf("dest json parse err %v", err)
 		return err
@@ -148,7 +144,11 @@ func makeReqColumnData(col *schema.TableColumn, value interface{}) interface{} {
 	case schema.TYPE_DATETIME, schema.TYPE_TIMESTAMP:
 		switch v := value.(type) {
 		case string:
-			vt, err := time.ParseInLocation(mysql.TimeFormat, string(v), time.Local)
+			loc,err:=time.LoadLocation("UTC")
+			if err!= nil {
+				return err 
+			}
+			vt, err := time.ParseInLocation(mysql.TimeFormat, string(v), loc)
 			if err != nil || vt.IsZero() { // failed to parse date or zero date
 				return nil
 			}

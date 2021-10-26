@@ -4,15 +4,32 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"dbsync/client"
 
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type Holes struct {
-	Id       int
-	Contents string
+	ID                 uint
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	DeletedAt          gorm.DeletedAt `gorm:"index"`
+	HoleId             uint           `gorm:"primarykey"`
+	OwnerEmail         string
+	Content            string `gorm:"type:varchar(1037)"`
+	ImageUrl           string
+	CreatedTimestamp   int64
+	CreatedIp          string
+	LastReplyTimestamp int64
+	ThumbupNum         int
+	ReplyNum           int
+	FollowNum          int
+	PvNum              int
+	IsDeleted          bool
+	ForestId           int //树洞所属的小树林
 }
 
 func HoleTest(msg []byte) error {
