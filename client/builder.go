@@ -10,12 +10,14 @@ import (
 	"github.com/Rican7/conjson"
 	"github.com/Rican7/conjson/transform"
 	"github.com/go-mysql-org/go-mysql/canal"
-	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/schema"
 	"github.com/sirupsen/logrus"
 )
 
-const mysqlDateFormat = "2006-01-02"
+const (
+	mysqlTimeFormat string = "2006-01-02 15:04:05"
+	mysqlDateFormat string = "2006-01-02"
+)
 
 type Model interface{}
 
@@ -144,15 +146,15 @@ func makeReqColumnData(col *schema.TableColumn, value interface{}) interface{} {
 	case schema.TYPE_DATETIME, schema.TYPE_TIMESTAMP:
 		switch v := value.(type) {
 		case string:
-			loc,err:=time.LoadLocation("UTC")
-			if err!= nil {
-				return err 
+			loc, err := time.LoadLocation("UTC")
+			if err != nil {
+				return err
 			}
-			vt, err := time.ParseInLocation(mysql.TimeFormat, string(v), loc)
+			vt, err := time.ParseInLocation(mysqlTimeFormat, string(v), loc)
 			if err != nil || vt.IsZero() { // failed to parse date or zero date
 				return nil
 			}
-			return vt.Format(time.RFC3339)
+			return vt
 		}
 	case schema.TYPE_DATE:
 		switch v := value.(type) {
