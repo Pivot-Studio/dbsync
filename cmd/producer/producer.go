@@ -1,10 +1,11 @@
 package main
 
 import (
-	"dbsync/river"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/Pivot-Studio/dbsync/river"
 
 	"github.com/sirupsen/logrus"
 )

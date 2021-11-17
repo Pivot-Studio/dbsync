@@ -1,11 +1,13 @@
 package client
 
 import (
-	"dbsync/model"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/Pivot-Studio/dbsync/model"
+
+	json "github.com/json-iterator/go"
 
 	"github.com/Rican7/conjson"
 	"github.com/Rican7/conjson/transform"
@@ -41,6 +43,7 @@ func Build(before, after Model, msg []byte) error {
 	return nil
 }
 func buildInsertMsg(dest interface{}, msg model.RowRequest) error {
+
 	destMap := make(map[string]interface{})
 	for k, c := range msg.Column {
 		destMap[c.Name] = makeReqColumnData(&c, msg.AfterData[k])

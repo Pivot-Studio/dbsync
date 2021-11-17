@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"time"
 
-	"dbsync/client"
+	"github.com/Pivot-Studio/dbsync/client"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"

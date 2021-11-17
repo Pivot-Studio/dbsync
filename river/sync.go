@@ -1,8 +1,9 @@
 package river
 
 import (
-	"dbsync/model"
 	"time"
+
+	"github.com/Pivot-Studio/dbsync/model"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/sirupsen/logrus"

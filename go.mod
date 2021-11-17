@@ -1,4 +1,4 @@
-module dbsync
+module github.com/Pivot-Studio/dbsync
 
 go 1.17
 

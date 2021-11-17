@@ -2,7 +2,8 @@ package storage
 
 import (
 	"context"
-	"dbsync/conf"
+
+	"github.com/Pivot-Studio/dbsync/conf"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-redis/redis/v8"

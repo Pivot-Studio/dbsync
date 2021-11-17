@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"dbsync/conf"
-	"dbsync/mq"
-	"dbsync/storage"
+	"github.com/Pivot-Studio/dbsync/conf"
+	"github.com/Pivot-Studio/dbsync/mq"
+	"github.com/Pivot-Studio/dbsync/storage"
 
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/sirupsen/logrus"

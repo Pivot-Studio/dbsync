@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"dbsync/conf"
+	"github.com/Pivot-Studio/dbsync/conf"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/sirupsen/logrus"

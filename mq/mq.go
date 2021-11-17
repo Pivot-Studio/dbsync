@@ -1,8 +1,8 @@
 package mq
 
 import (
-	"dbsync/conf"
-	"dbsync/model"
+	"github.com/Pivot-Studio/dbsync/conf"
+	"github.com/Pivot-Studio/dbsync/model"
 
 	"github.com/sirupsen/logrus"
 )
