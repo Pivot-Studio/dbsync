@@ -66,7 +66,7 @@ go run cmd/producer/producer.go
         "Port":"6379",
         "Password": ""
     },
-    "Bolt":  {
+    "Bolt":{
 		"File": "pos.db",
 		"Bucket": "pos"
 	},
