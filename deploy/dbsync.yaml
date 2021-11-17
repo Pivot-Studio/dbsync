@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbsync
+  namespace: dbsync
+spec:
+  selector:
+    matchLabels:
+      app: dbsync
+  template:
+    metadata:
+      labels:
+        app: dbsync
+    spec:
+      containers:
+      - name: dbsync
+        image: registry.cn-beijing.aliyuncs.com/pivotstudio/dbsync:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: dbsync-config
+          mountPath: /dbsync/config.json
+          subPath: config.json
+        - name: dbsync-storage
+          mountPath: /dbsync/data
+          
+      volumes:
+      - name: dbsync-config
+        configMap:
+          name: dbsync-config
+      - name: dbsync-storage
+        persistentVolumeClaim:
+          claimName: dbsync-pv-claim

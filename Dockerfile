@@ -10,7 +10,7 @@ RUN go build -o /go/bin/app -v cmd/producer/producer.go
 
 #final stage
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates mysql-client
 COPY --from=builder /go/bin/app /dbsync/app
 WORKDIR /dbsync
 ENTRYPOINT /dbsync/app

@@ -37,7 +37,7 @@ func NewRiver() (*River, error) {
 	r.storageDao = storage.StorageDao
 	err := r.initCanal()
 	if err != nil {
-		logrus.Error("[NewRiver] init canal err %+v", err)
+		logrus.Errorf("[NewRiver] init canal err %+v", err)
 		return nil, err
 	}
 	return r, nil
@@ -58,6 +58,7 @@ func (r *River) Run() error {
 		}
 		logrus.Infof("[Run] get master pos %+v", pos)
 	}
+	logrus.Infof("[Run] get pos %+v",pos)
 	err = r.canal.RunFrom(pos)
 	if err != nil {
 		logrus.Errorf("[Run] start canal err %+v", err)

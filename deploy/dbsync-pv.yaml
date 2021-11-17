@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dbsync-pv-claim
+  namespace: dbsync
+spec:
+  storageClassName: ""
+  volumeName: dbsync-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+status: {}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dbsync-pv
+  namespace: dbsync
+  labels:
+    type: local
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  nfs:
+    server: 172.16.0.18
+    path: "/mnt/dbsync"
