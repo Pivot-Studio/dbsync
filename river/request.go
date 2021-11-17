@@ -1,8 +1,8 @@
 package river
 
 import (
-	"dbsync/model"
 	"fmt"
+	"github.com/Pivot-Studio/dbsync/model"
 
 	"github.com/go-mysql-org/go-mysql/canal"
 )

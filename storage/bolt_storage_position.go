@@ -4,62 +4,66 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/Pivot-Studio/dbsync/conf"
+
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
 )
 
-type BoltPositionStorage struct {
+var bucket = []byte(conf.C.Bolt.Bucket)
+
+type boltPositionStorage struct {
 	bolt *bbolt.DB
 }
 
-func (b *BoltPositionStorage) Save(pos mysql.Position) error {
-	logrus.Infof("save position %v", pos)
+func (b *boltPositionStorage) Save(pos mysql.Position) error {
+	logrus.Infof("[Save] position at: %+v", pos)
 	return b.bolt.Update(func(tx *bbolt.Tx) error {
-		bt := tx.Bucket(positionBucket)
+		bt := tx.Bucket(bucket)
 		data, err := json.Marshal(pos)
 		if err != nil {
 			return err
 		}
-		return bt.Put(positionKey, data)
+		return bt.Put([]byte(positionKey), data)
 	})
 }
 
-func (b *BoltPositionStorage) Get() (mysql.Position, error) {
+func (b *boltPositionStorage) Get() (mysql.Position, error) {
 	var entity mysql.Position
 	err := b.bolt.View(func(tx *bbolt.Tx) error {
-		bt := tx.Bucket(positionBucket)
-		data := bt.Get(positionKey)
+		bt := tx.Bucket(bucket)
+		data := bt.Get([]byte(positionKey))
 		if data == nil {
-			return fmt.Errorf("position storage not found")
+			return fmt.Errorf("[Get] position storage not found")
 		}
 		return json.Unmarshal(data, &entity)
 	})
 
 	return entity, err
 }
-func (b *BoltPositionStorage) Initialize() error {
-	db, err := bbolt.Open("my.db", 0600, nil)
+func (b *boltPositionStorage) Initialize() error {
+	db, err := bbolt.Open(conf.C.Bolt.File, 0600, nil)
 	if err != nil {
-		logrus.Errorf("init bbolt err %v", err)
+		logrus.Errorf("[Initialize] bbolt err %+v", err)
 		return err
 	}
 	err = db.Update(func(tx *bbolt.Tx) error {
-		tx.CreateBucketIfNotExists(positionBucket)
+		tx.CreateBucketIfNotExists(bucket)
 		return nil
 	})
 	if err != nil {
-		logrus.Errorf("create bucket err %v", err)
+		logrus.Errorf("[Initialize] bucket err %+v", err)
 		return err
 	}
-	logrus.Info("init bolt success")
+	logrus.Info("[Initialize] bolt success")
 	b.bolt = db
 	return nil
 }
-func (b *BoltPositionStorage) Close() error {
+func (b *boltPositionStorage) Close() error {
 	err := b.bolt.Close()
 	if err != nil {
-		logrus.Errorf("close bolt err %v", err)
+		logrus.Errorf("[Close] bolt err %+v", err)
 		return err
 	}
 	return nil

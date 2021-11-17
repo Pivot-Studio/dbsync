@@ -1,0 +1,29 @@
+{
+    "Version":"1.0.0",
+    "Redis":{
+        "Host":"127.0.0.1",
+        "Port":"6379",
+        "Password": ""
+    },
+    "Bolt":  {
+		"File": "pos.db",
+		"Bucket": "pos"
+	},
+    "Storage":{
+        "DaoName":"bolt",
+        "PosKey":"key"
+    },
+    "Mysql":{
+        "Host":"127.0.0.1",
+        "Port":"3306",
+        "Username":"canal",
+        "Password":"canal"
+    },
+    "MQName":"stan",
+    "Stan":{
+        "Host":"nats://nats.default.svc.cluster.local",
+        "Port":"4222",
+        "ClusterID":"stan",
+        "ClientID":"binlogsync"
+    }
+}
