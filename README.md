@@ -43,6 +43,11 @@ func main() {
     c.Register(Holes{}, HoleTest)
 }
 ```
+调试
+```shell
+telepresence connect
+go run cmd/consumer/consumer.go
+```
 完整的例子在[cmd/consumer/consumer.go](./cmd/consumer/consumer.go)
 
 **需要注意的点**
