@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dbsync/service/river"
+	"dbsync/river"
 	"os"
 	"os/signal"
 	"syscall"

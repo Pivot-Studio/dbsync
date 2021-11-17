@@ -25,7 +25,7 @@ func Build(before, after Model, msg []byte) error {
 	var m model.RowRequest
 	err := json.Unmarshal(msg, &m)
 	if err != nil {
-		logrus.Errorf("pos json parse err %v", err)
+		logrus.Errorf("[Build] pos json parse err %v", err)
 	}
 	switch m.Action {
 	case canal.InsertAction:
@@ -36,7 +36,7 @@ func Build(before, after Model, msg []byte) error {
 		err = buildUpdateMsg(before, after, m)
 	}
 	if err != nil {
-		return fmt.Errorf("build %s message err %v", m.Action, err)
+		return fmt.Errorf("[Build] %s message err %v", m.Action, err)
 	}
 	return nil
 }
@@ -58,7 +58,7 @@ func mapToDest(m *map[string]interface{}, dest interface{}) error {
 
 	b, err := json.Marshal(m)
 	if err != nil {
-		logrus.Errorf("map json parse err %v", err)
+		logrus.Errorf("[mapToDest] map json parse err %v", err)
 		return err
 	}
 	json.Unmarshal(
@@ -66,7 +66,7 @@ func mapToDest(m *map[string]interface{}, dest interface{}) error {
 		conjson.NewUnmarshaler(dest, transform.ConventionalKeys()),
 	)
 	if err != nil {
-		logrus.Errorf("dest json parse err %v", err)
+		logrus.Errorf("[mapToDest] dest json parse err %v", err)
 		return err
 	}
 	return nil
@@ -79,11 +79,11 @@ func buildUpdateMsg(before, after Model, msg model.RowRequest) error {
 	}
 	err := mapToDest(&beforeMap, before)
 	if err != nil {
-		logrus.Errorf("set map to dest err %v", err)
+		logrus.Errorf("[buildUpdateMsg] set map to dest err %v", err)
 	}
 	err = mapToDest(&afterMap, after)
 	if err != nil {
-		logrus.Errorf("set map to dest err %v", err)
+		logrus.Errorf("[buildUpdateMsg] set map to dest err %v", err)
 	}
 	return nil
 }
@@ -96,7 +96,7 @@ func makeReqColumnData(col *schema.TableColumn, value interface{}) interface{} {
 			eNum := value - 1
 			if eNum < 0 || eNum >= int64(len(col.EnumValues)) {
 				// we insert invalid enum value before, so return empty
-				logrus.Warnf("invalid binlog enum index %d, for enum %v", eNum, col.EnumValues)
+				logrus.Warnf("[makeReqColumnData] invalid binlog enum index %d, for enum %+v", eNum, col.EnumValues)
 				return ""
 			}
 

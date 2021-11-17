@@ -57,5 +57,5 @@ func (h *eventHandler) OnPosSynced(pos mysql.Position, set mysql.GTIDSet, force 
 }
 
 func (h *eventHandler) String() string {
-	return "ESRiverEventHandler"
+	return "EventHandler"
 }

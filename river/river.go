@@ -6,7 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"dbsync/service/mq"
+	"dbsync/conf"
+	"dbsync/mq"
 	"dbsync/storage"
 
 	"github.com/go-mysql-org/go-mysql/canal"
@@ -25,70 +26,57 @@ type River struct {
 	cancel     context.CancelFunc
 	syncCh     chan interface{}
 	storageDao storage.PositionStorager
-	transfer   *mq.RockerTransfer
+	transfer   mq.MessageQueue
 }
 
 func NewRiver() (*River, error) {
 	r := new(River)
 	r.syncCh = make(chan interface{}, 4096)
 	r.ctx, r.cancel = context.WithCancel(context.Background())
-	r.transfer = new(mq.RockerTransfer)
-	err := r.transfer.InitRocket()
+	r.transfer = mq.MQ
+	r.storageDao = storage.StorageDao
+	err := r.initCanal()
 	if err != nil {
-		logrus.Error("init rocket err %v", err)
+		logrus.Error("[NewRiver] init canal err %+v", err)
 		return nil, err
 	}
-
-	err = r.initStorager(&storage.BoltPositionStorage{})
-	if err != nil {
-		logrus.Error("init storager err %v", err)
-		return nil, err
-	}
-
-	err = r.initCanal()
-	if err != nil {
-		logrus.Error("init canal err %v", err)
-		return nil, err
-	}
-
-	logrus.Info("init river success")
 	return r, nil
 }
 func (r *River) Run() error {
-
-	err := r.transfer.Run()
-	if err != nil {
-		logrus.Errorf("start transfer err %v", err)
-		return err
-	}
-
 	r.wg.Add(1)
 	go r.syncLoop()
-	logrus.Info("sleep 5 seconds......")
+	logrus.Info("[Run] sleep 5 seconds......")
 	time.Sleep(5 * time.Second)
 
 	pos, err := r.storageDao.Get()
 	if err != nil {
-		logrus.Warnf("get pos in storage err %v", err)
+		logrus.Warnf("[Run] get pos in storage err %+v", err)
 		pos, err = r.canal.GetMasterPos()
 		if err != nil {
-			logrus.Errorf("get master pos err %v", err)
+			logrus.Errorf("[Run] get master pos err %+v", err)
 			return err
 		}
-		logrus.Infof("get master pos %v", pos)
+		logrus.Infof("[Run] get master pos %+v", pos)
 	}
 	err = r.canal.RunFrom(pos)
 	if err != nil {
-		logrus.Errorf("start canal err %v", err)
+		logrus.Errorf("[Run] start canal err %+v", err)
 		return err
 	}
 	return nil
 }
 func (r *River) Close() {
-	logrus.Infof("closing river")
+	logrus.Infof("[Close] closing river")
 	r.cancel()
 	r.canal.Close()
-	r.storageDao.Close()
+	err := r.storageDao.Close()
+	if err != nil {
+		logrus.Errorf("[Close] close storage err: %+v", err)
+	}
+	err = r.transfer.Close()
+	if err != nil {
+		logrus.Errorf("[Close] close mq err: %+v", err)
+	}
 	r.wg.Wait()
 }
 func (r *River) Ctx() context.Context {
@@ -96,24 +84,15 @@ func (r *River) Ctx() context.Context {
 }
 func (r *River) initCanal() error {
 	cfg := canal.NewDefaultConfig()
-	cfg.Addr = "127.0.0.1:3306"
-	cfg.User = "canal"
-	cfg.Password = "canal"
+	cfg.Addr = conf.C.Mysql.Host + ":" + conf.C.Mysql.Port
+	cfg.User = conf.C.Mysql.Username
+	cfg.Password = conf.C.Mysql.Password
 	c, err := canal.NewCanal(cfg)
 	if err != nil {
 		logrus.Error(err)
-		return fmt.Errorf("init canal err %v", err)
+		return fmt.Errorf("[initCanal] err: %+v", err)
 	}
 	c.SetEventHandler(&eventHandler{r})
 	r.canal = c
-	return nil
-}
-func (r *River) initStorager(s storage.PositionStorager) error {
-	r.storageDao = s
-	err := r.storageDao.Initialize()
-	if err != nil {
-		logrus.Errorf("init storager err %v", err)
-		return err
-	}
 	return nil
 }
