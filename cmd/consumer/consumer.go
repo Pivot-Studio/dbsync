@@ -12,6 +12,20 @@ import (
 	"gorm.io/gorm"
 )
 
+type Replies struct {
+	gorm.Model
+	Reply_user string `gorm:"index"`
+	Content    string
+	ImageUrl   string
+	//refer to the rank in certain hole
+	LocalReplyId   uint
+	PostAliasIndex uint
+	HoleId         uint
+	ThumbupNum     uint
+	IsDeleted      bool
+	//reply to an another reply
+	ReplyTo int
+}
 type Holes struct {
 	ID                 uint
 	CreatedAt          time.Time
@@ -36,7 +50,17 @@ func HoleTest(msg []byte) {
 	var holeBefore Holes
 	var holeAfter Holes
 	client.Build(&holeBefore, &holeAfter, msg)
-	logrus.Infof("before %v,after %v", holeBefore, holeAfter)
+	if holeBefore == (Holes{}) {
+		logrus.Infof("[hole] new hole %v", holeAfter)
+	}
+}
+func ReplyTest(msg []byte) {
+	var replyBefore Replies
+	var replyAfter Replies
+	client.Build(&replyBefore, &replyAfter, msg)
+	if replyBefore == (Replies{}) {
+		logrus.Infof("[hole] new hole %v", replyAfter)
+	}
 }
 func main() {
 	sc := make(chan os.Signal, 1)
@@ -55,10 +79,7 @@ func main() {
 		logrus.Fatalf("init client err %v", err)
 	}
 	c.Register(Holes{}, HoleTest)
-	err = c.Run()
-	if err != nil {
-		logrus.Fatalf("start consumer err %v", err)
-	}
+	c.Register(Replies{}, ReplyTest)
 	n := <-sc
 	logrus.Infof("receive signal %v, closing", n)
 	err = c.Close()

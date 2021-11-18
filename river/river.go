@@ -58,7 +58,7 @@ func (r *River) Run() error {
 		}
 		logrus.Infof("[Run] get master pos %+v", pos)
 	}
-	logrus.Infof("[Run] get pos %+v",pos)
+	logrus.Infof("[Run] get pos %+v", pos)
 	err = r.canal.RunFrom(pos)
 	if err != nil {
 		logrus.Errorf("[Run] start canal err %+v", err)

@@ -10,9 +10,8 @@ import (
 )
 
 type Client struct {
-	clientID    string
-	consumer    stan.Conn
-	registerMap map[string]func(m []byte)
+	clientID string
+	consumer stan.Conn
 }
 type Config struct {
 	Host      string
@@ -30,23 +29,16 @@ func NewClient(c Config) (*Client, error) {
 	if err != nil {
 		logrus.Fatalf("[NewClient] stan connect err %+v", err)
 	}
-	m := make(map[string]func(m []byte))
-	return &Client{consumer: sc, registerMap: m, clientID: c.ClientID}, nil
+	return &Client{consumer: sc, clientID: c.ClientID}, nil
 }
 func (c *Client) Register(h Model, f func(m []byte)) {
 	name := strings.ToLower(reflect.TypeOf(h).Name())
-	c.registerMap[name] = f
-}
-func (c *Client) Run() error {
-	for name, f := range c.registerMap {
-		_, err := c.consumer.Subscribe(name, func(msg *stan.Msg) {
-			f(msg.Data)
-		}, stan.DurableName(name+c.clientID))
-		if err != nil {
-			logrus.Errorf("[Run] sub %s err: %+v", name, err)
-		}
+	_, err := c.consumer.Subscribe(name, func(msg *stan.Msg) {
+		f(msg.Data)
+	}, stan.DurableName(name+c.clientID))
+	if err != nil {
+		logrus.Errorf("[Run] sub %s err: %+v", name, err)
 	}
-	return nil
 }
 func (c *Client) Close() error {
 	err := c.consumer.Close()
