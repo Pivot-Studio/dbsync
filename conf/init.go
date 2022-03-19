@@ -12,6 +12,7 @@ var C *Config
 
 type Config struct {
 	Version string
+	ProName string
 	Redis   struct {
 		Host     string
 		Port     string

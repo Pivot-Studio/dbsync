@@ -43,7 +43,7 @@ func (s *StanMQ) DoBulk(rows []*model.RowRequest) error {
 			logrus.Errorf("[DoBulk] marshal row err: %+v", err)
 			return err
 		}
-		err = s.sc.Publish(row.Table, b)
+		err = s.sc.Publish(conf.C.ProName+row.Table, b)
 		if err != nil {
 			logrus.Errorf("[DoBulk] publish row err: %+v", err)
 			return err
