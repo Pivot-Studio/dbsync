@@ -12,30 +12,32 @@ import (
 type Client struct {
 	clientID string
 	consumer stan.Conn
+	cfg      Config
 }
 type Config struct {
 	Host      string
 	Port      string
 	ClusterID string
 	ClientID  string
+	ProName   string
 }
 
-func NewClient(c Config) (*Client, error) {
-	nc, err := nats.Connect(c.Host + ":" + c.Port)
+func NewClient(cfg Config) (*Client, error) {
+	nc, err := nats.Connect(cfg.Host + ":" + cfg.Port)
 	if err != nil {
 		logrus.Fatalf("[NewClient] nats connect err %+v", err)
 	}
-	sc, err := stan.Connect(c.ClusterID, c.ClientID, stan.NatsConn(nc))
+	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsConn(nc))
 	if err != nil {
 		logrus.Fatalf("[NewClient] stan connect err %+v", err)
 	}
-	return &Client{consumer: sc, clientID: c.ClientID}, nil
+	return &Client{consumer: sc, clientID: cfg.ClientID, cfg: cfg}, nil
 }
 func (c *Client) Register(h Model, f func(m []byte)) {
 	name := strings.ToLower(reflect.TypeOf(h).Name())
-	_, err := c.consumer.Subscribe(name, func(msg *stan.Msg) {
+	_, err := c.consumer.Subscribe(c.cfg.ProName+name, func(msg *stan.Msg) {
 		f(msg.Data)
-	}, stan.DurableName(name+c.clientID))
+	}, stan.DurableName(c.cfg.ProName+name+c.clientID))
 	if err != nil {
 		logrus.Errorf("[Run] sub %s err: %+v", name, err)
 	}
